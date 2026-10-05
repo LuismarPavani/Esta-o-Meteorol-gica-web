@@ -37,8 +37,24 @@ export default function Dashboard() {
     const r = await fetch('/api/devices');
     if (r.status === 401) { router.push('/login'); return; }
     const d: Device[] = await r.json();
-    setDevices(d); setSel(s => (d.some(x => x.id === s) ? s : d[0]?.id ?? ''));
+    setDevices(d);
+    setSel(s => {
+      if (d.some(x => x.id === s)) return s;
+      let saved: string | null = null; // primeira carga: usa o último ESP escolhido neste navegador
+      try { saved = localStorage.getItem('lastDevice'); } catch { /* sem armazenamento */ }
+      return d.find(x => x.id === saved)?.id ?? d[0]?.id ?? '';
+    });
   }, [router]);
+
+  const selectCity = (id: number) => {
+    setCity(id);
+    try { localStorage.setItem(`lastCity:${sel}`, String(id)); } catch { /* sem armazenamento */ }
+  };
+
+  const selectDevice = (id: string) => {
+    setSel(id);
+    try { localStorage.setItem('lastDevice', id); } catch { /* sem armazenamento */ }
+  };
   useEffect(() => { loadDevices(); const t = setInterval(loadDevices, 60000); return () => clearInterval(t); }, [loadDevices]);
 
   // Cidades que o ESP selecionado já enviou
@@ -48,8 +64,10 @@ export default function Dashboard() {
     fetch(`/api/cities?device=${encodeURIComponent(sel)}`).then(r => r.json()).then((c: City[]) => {
       if (!Array.isArray(c)) return;
       setCities(c);
+      let saved: number | null = null; // última cidade escolhida para este ESP neste navegador
+      try { saved = Number(localStorage.getItem(`lastCity:${sel}`)) || null; } catch { /* sem armazenamento */ }
       const last = devices?.find(d => d.id === sel)?.city_id;
-      setCity(c.find(x => x.city_id === last)?.city_id ?? c[0]?.city_id ?? null);
+      setCity(c.find(x => x.city_id === saved)?.city_id ?? c.find(x => x.city_id === last)?.city_id ?? c[0]?.city_id ?? null);
     });
   }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -97,11 +115,11 @@ export default function Dashboard() {
       {dev && (
         <>
           <div className="picker">
-            <select value={sel} onChange={e => setSel(e.target.value)} aria-label="Dispositivo">
+            <select value={sel} onChange={e => selectDevice(e.target.value)} aria-label="Dispositivo">
               {devices!.map(d => <option key={d.id} value={d.id}>{d.name || d.id}</option>)}
             </select>
             {cities.length > 0 && (
-              <select value={city ?? ''} onChange={e => setCity(Number(e.target.value))} aria-label="Cidade">
+              <select value={city ?? ''} onChange={e => selectCity(Number(e.target.value))} aria-label="Cidade">
                 {cities.map(c => <option key={c.city_id} value={c.city_id}>{c.city_name || `Cidade ${c.city_id}`}</option>)}
               </select>
             )}

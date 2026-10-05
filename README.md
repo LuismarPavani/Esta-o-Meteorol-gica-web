@@ -13,7 +13,7 @@ Feito com **Next.js** (hospedado no **Vercel**) e **Supabase** (Postgres).
 - Bateria com ícone estilo celular, percentual, tensão em volts, estado **ativa** ou **inativa** (bateria detectada ou não) e aviso de bateria baixa.
 - Status **online/offline** de cada ESP e tempo desde a última leitura.
 - Gráfico de temperatura e umidade do ESP selecionado, com período de **24 horas, 7 dias ou 30 dias**.
-- Seleção de **dispositivo** e de **cidade**: cada leitura guarda a cidade (código da OpenWeatherMap), e o gráfico e o tempo seguem a cidade escolhida.
+- Seleção de **dispositivo** e de **cidade** (o painel lembra a última escolha de cada um neste navegador): cada leitura guarda a cidade (código da OpenWeatherMap), e o gráfico e o tempo seguem a cidade escolhida.
 - Informações do dispositivo: ID, IP, firmware, cidade e horário da última leitura.
 - **Tema claro e escuro**, com o botão no topo (lembra a escolha e, na primeira visita, segue o tema do sistema).
 - Layout responsivo para celular.
